@@ -1,0 +1,13 @@
+
+
+
+$ kubectl get svc
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+flask-service   NodePort    10.96.41.206   <none>        80:32412/TCP   4h42m
+kubernetes      ClusterIP   10.96.0.1      <none>        443/TCP        5h10m
+
+
+$ kubectl port-forward svc/flask-service 8080:80
+Kubernetes içindeki bir servise yerel makineden erişim sağlamaktır.
+Bu komut, yerel makinede 8080 numaralı portu, Kubernetes kümesi içindeki flask-service adlı servisin 80 numaralı portuna yönlendirir.
+Bu sayede, tarayıcınızda veya başka bir istemci uygulamada http://localhost:8080 adresine giderek, Kubernetes içerisindeki flask-service servisine erişebilirsiniz.
