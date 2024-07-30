@@ -28,7 +28,8 @@ now you're ready to use kind cluster.
 $ kind create cluster
 
 kind'ın default olarak ayarladığı şekilde bir cluster oluşturur.
-create-cluster.yaml içerisinden kendinize göre değiştirip oluşturabilirsiniz.
+create-cluster.yaml içerisinden kendinize göre değiştirip oluşturabilirsiniz
+(daha fazla worker eklemek veya azaltmak gibi).
 Bunun için:
 
 $ kind create cluster --name [cluster'ınızın adı] --config create-cluster.yaml
