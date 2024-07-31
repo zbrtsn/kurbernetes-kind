@@ -1,0 +1,7 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: ma-cluster
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker  # you can add more worker or less as you want.
