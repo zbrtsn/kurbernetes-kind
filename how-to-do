@@ -1,3 +1,6 @@
+I will use in this tutorial [flask app](https://github.com/zbrtsn/basic-to-do-flask) 
+You can visit the repo for more information.
+
 
 -First install docker
 
@@ -27,7 +30,7 @@ $ [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23
 
 $ kind create cluster
 
-"Creates a cluster in the default configuration set by Kind.
+Creates a cluster in the default configuration set by Kind.
 You can modify the kind-config.yaml file to suit your needs
 (for example, adding or removing more workers). To do this:
 
