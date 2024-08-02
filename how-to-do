@@ -1,8 +1,8 @@
 
-First install docker
+-First install docker
 
-for fedora:
-  sudo dnf -y install dnf-plugins-core
+-for fedora:
+$ sudo dnf -y install dnf-plugins-core
   sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
   sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo systemctl start docker
@@ -10,47 +10,90 @@ for fedora:
 making for sure the docker:
 $ sudo docker run hello-world
 
-after docker install kubectl:
-  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+-after docker install kubectl:
+$ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
-it's time to install kind:
+-it's time to install kind:
   # For AMD64 / x86_64
-  [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+$ [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
   # For ARM64
-  [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-arm64
+$ [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-arm64
   chmod +x ./kind
   sudo mv ./kind /usr/local/bin/kind
 
-now you're ready to use kind cluster.
+-now you're ready to use kind features.
 
 
 
 $ kind create cluster
 
-kind'ın default olarak ayarladığı şekilde bir cluster oluşturur.
-create-cluster.yaml içerisinden kendinize göre değiştirip oluşturabilirsiniz
-(daha fazla worker eklemek veya azaltmak gibi).
-Bunun için:
-
-$ kind create cluster --name [cluster'ınızın adı] --config create-cluster.yaml
+"Creates a cluster in the default configuration set by Kind.
+You can modify the kind-config.yaml file to suit your needs
+(for example, adding or removing more workers). To do this:
 
 
+$ kind create cluster --name [your Cluster's name here] --config kind-config.yaml
+
+-mine is gonna be like,
+
+$ kind create cluster --name ma-cluster --config kind-config.yaml
+
+-you can see with this command if you've created cluster is working or not:
+
+$ kubectl cluster-info
+
+- You can use Kubernetes manifest files to deploy your application to your kind cluster:
+
+$ cd manifest_files/
+$ kubectl apply -f kind-deployment.yaml
+$ kubectl apply -f kind-service.yaml 
+
+- You can use the following commands to check the status of your deployment and services:
+$ kubectl get pods
+NAME                               READY   STATUS    RESTARTS        AGE
+flask-deployment-6b76666cd-7stx6   1/1     Running   4 (4h55m ago)   36h
+flask-deployment-6b76666cd-cm6gb   1/1     Running   4 (4h55m ago)   36h
+
+$ kubectl get services
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+flask-service   NodePort    10.96.21.224   <none>        8081:32254/TCP   36h
+kubernetes      ClusterIP   10.96.0.1      <none>        443/TCP          4d5h
 
 
-
-$ kind get --name ma-cluster kubeconfig > ~/.kube/config
-
--Özetle, bu komut kind ile oluşturulmuş ma-cluster adlı kümenin kubeconfig dosyasını alır ve bu dosyayı 
--kubectl tarafından kullanılmak üzere yerel makinedeki ~/.kube/config dosyasına kaydeder.
--Bu sayede, kubectl komutlarını kullanarak ma-cluster kümesini yönetebilirsiniz.
--kubectl'i belirli bir cluster'a yönlendiriyoruz. (kubeadm'den kind'a geçiş yaparken kullandım. Kubectl kubeadm dosya yolunda kalmış kind'ı görmüyordu.)
-
-
+If you have defined a service, you can use the service's IP address or port to access your application.
+Kind typically uses NodePort instead of creating a LoadBalancer type service.
+To access it using NodePort:
 
 $ kubectl get svc
-NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
-flask-service   NodePort    10.96.41.206   <none>        80:32412/TCP   4h42m
-kubernetes      ClusterIP   10.96.0.1      <none>        443/TCP        5h10m
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+flask-service   NodePort    10.96.21.224   <none>        8081:32254/TCP   36h
+kubernetes      ClusterIP   10.96.0.1      <none>        443/TCP          4d5h
+
+
+- you can see her my flask's app service going to 8081 my local port.
+you can change it in "kind-service.yaml" file or command this to make it change for temporarily:
+
+$ kubectl port-forward svc/flask-service 8085:8081
+
+- at first it was 8081 but now it is 8085.
+This allows you to access a service within Kubernetes from your local machine.
+This command forwards port 8080 on your local machine to port 80 of the service named flask-service in the Kubernetes cluster.
+As a result, you can access the flask-service within Kubernetes by going to http://localhost:8085 in your browser or another client application.
+
+NOTE: If you cannot access the port shown here, and even after opening the port in any Docker container you are unable to connect,
+try this. Even if you initially opened the port with 8081 and still cannot connect,
+you can use kubectl port-forward svc/flask-service 8081:8081 to assign the same port again. Then, try again.
+Additionally, since this port change is temporary, you won't be able to use the terminal you are currently in.
+
+
+
+$ kind get --name [your cluster name here] kubeconfig > ~/.kube/config
+$ kind get --name ma-cluster kubeconfig > ~/.kube/config
+
+"In summary, this command retrieves the kubeconfig file for the cluster named ma-cluster, 
+which is created with Kind, and saves this file to the local machine's ~/.kube/config file for use by kubectl.
+This allows you to manage the ma-cluster using kubectl commands. We are directing kubectl to a specific cluster.
+(I used this when switching from kubeadm to Kind. Kubectl was still pointing to the kubeadm file path and could not see Kind.)"
 
 
 
